@@ -32,6 +32,10 @@ const userSchema = new Schema<TUser>(
       type: String,
       default: "",
     },
+    fcmToken: {
+      type: String,
+      required: false,
+    },
     isActive: {
       type: String,
       enum: ["ACTIVE", "INACTIVE"],

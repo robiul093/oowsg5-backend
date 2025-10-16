@@ -8,6 +8,7 @@ export type TUser = {
   profileImage?: string;
   isVerified?: boolean;
   lastOTP?: string;
+  fcmToken: string;
   isActive?: TAccountStatus;
   isDeleted?: boolean;
 };

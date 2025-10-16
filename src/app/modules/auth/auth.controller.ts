@@ -116,6 +116,23 @@ const login_user_with_google = catchAsync(async (req, res) => {
   });
 });
 
+const set_fcm_token = catchAsync(async (req, res) => {
+  const userId = req.user?.userId;
+  const fcmToken = req.body.fcmToken;
+  if (!fcmToken) {
+    throw new AppError(404, "fcmToken not found");
+  }
+
+  const result = await auth_service.set_fcm_token_into_db(userId, fcmToken);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "fcm token set successfully",
+    data: result,
+  });
+});
+
 export const auth_controller = {
   sign_up_user,
   verify_email,
@@ -124,4 +141,5 @@ export const auth_controller = {
   forgot_password,
   reset_password,
   login_user_with_google,
+  set_fcm_token,
 };

@@ -35,6 +35,10 @@ const eventSchema = new Schema<TEvent>(
       required: [true, "user id is required"],
       ref: "User",
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

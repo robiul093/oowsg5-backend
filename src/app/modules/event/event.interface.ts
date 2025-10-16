@@ -10,4 +10,5 @@ export type TEvent = {
   color: string;
   status: TEventStatus;
   userId: ObjectId;
+  isDeleted: Boolean;
 };

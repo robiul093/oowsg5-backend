@@ -273,6 +273,17 @@ export const login_user_with_google_from_db = async (payload: GooglePayload) => 
   }
 };
 
+const set_fcm_token_into_db = async (userId: string, fcmToken: string) => {
+  const updatedUser = await User_Model.findByIdAndUpdate(userId, { fcmToken }, { new: true });
+
+  if (!updatedUser) {
+    throw new AppError(404, "User not found or update failed");
+  }
+
+  return updatedUser;
+};
+
+
 export const auth_service = {
   sign_up_user_into_db,
   verify_email_into_db,
@@ -281,6 +292,7 @@ export const auth_service = {
   forgot_password,
   reset_password_into_db,
   login_user_with_google_from_db,
+  set_fcm_token_into_db,
 };
 
 // Generate token valid for 1 hour
