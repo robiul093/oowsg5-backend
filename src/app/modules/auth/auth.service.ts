@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import config from "../../config";
 import { AppError } from "../../utils/app_error";
 import { jwtHelpers } from "../../utils/JWT";
@@ -7,7 +6,6 @@ import { User_Model } from "./auth.schema";
 import bcrypt from "bcrypt";
 import { OTPMaker } from "../../utils/otp_maker";
 import { Request } from "express";
-import { sendEmailWithBrevo } from "../../utils/sendEmailWithBrevo";
 import mongoose from "mongoose";
 import { sendEmail } from "../../utils/send_email";
 
@@ -68,6 +66,44 @@ const sign_up_user_into_db = async (payload: TUser) => {
   return "Check your email for OTP";
 
   // return "";
+};
+
+const resend_otp_from_backend = async (email: string) => {
+  const user = await User_Model.findOne({ email });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+
+  const otp = OTPMaker();
+  await User_Model.findOneAndUpdate({ email }, { lastOTP: otp });
+
+  const otpDigits = otp.split("");
+
+  const emailTemp = `
+    <table ...>
+      ...
+      <tr>
+        ${otpDigits
+          .map(
+            (digit) => `
+            <td align="center" valign="middle"
+              style="background:#f5f3ff; border-radius:12px; width:56px; height:56px;">
+              <div style="font-size:22px; line-height:56px; color:#111827; font-weight:700; text-align:center;">
+                ${digit}
+              </div>
+            </td>
+            <td style="width:12px;">&nbsp;</td>
+          `
+          )
+          .join("")}
+      </tr>
+      ...
+    </table>
+  `;
+
+  await sendEmail(email, "Your OTP", emailTemp);
+  return "Check your email for OTP";
 };
 
 const verify_email_into_db = async (payload: { email: string; otp: string }) => {
@@ -283,9 +319,9 @@ const set_fcm_token_into_db = async (userId: string, fcmToken: string) => {
   return updatedUser;
 };
 
-
 export const auth_service = {
   sign_up_user_into_db,
+  resend_otp_from_backend,
   verify_email_into_db,
   login_user_into_db,
   change_password_into_db,

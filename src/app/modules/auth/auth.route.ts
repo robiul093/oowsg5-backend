@@ -7,6 +7,7 @@ import auth from "../../middlewares/auth";
 const router = Router();
 
 router.post("/register", auth_controller.sign_up_user);
+router.post("/resend-otp", auth_controller.resend_otp);
 router.post("/verify-email", auth_controller.verify_email);
 router.post("/login", RequestValidator(login_schema), auth_controller.login_user);
 router.patch(

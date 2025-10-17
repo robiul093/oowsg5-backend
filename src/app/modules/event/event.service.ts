@@ -1,5 +1,4 @@
 import { AppError } from "../../utils/app_error";
-import { User_Model } from "../auth/auth.schema";
 import { TEvent } from "./event.interface";
 import { Event_Model } from "./event.schema";
 
@@ -81,10 +80,10 @@ export const get_all_event_from_db = async (
 };
 
 const get_single_event_from_db = async (userId: string, eventId: string) => {
-  const event = await Event_Model.findOne({ userId, _id: eventId });
+  const event = await Event_Model.findOne({ userId, _id: eventId, isDeleted: false });
 
   if (!event) {
-    throw new AppError(404, "Event not found");
+    throw new AppError(404, "Event not found or already deleted");
   }
   return event;
 };
@@ -121,8 +120,6 @@ const delete_event_from_db = async (userId: string, eventId: string) => {
     event: deletedEvent,
   };
 };
-
-
 
 export const event_service = {
   create_event_into_db,

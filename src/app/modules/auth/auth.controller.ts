@@ -1,6 +1,5 @@
 import { AppError } from "../../utils/app_error";
 import catchAsync from "../../utils/catch_async";
-import { uploadToCloudinary } from "../../utils/cloudinaryUploader";
 import { sendResponse } from "../../utils/send_response";
 import { auth_service } from "./auth.service";
 
@@ -11,6 +10,26 @@ const sign_up_user = catchAsync(async (req, res) => {
     success: true,
     statusCode: 200,
     message: "Check your email for OTP",
+    data: result,
+  });
+});
+
+const resend_otp = catchAsync(async (req, res) => {
+  if (!req.body) {
+    throw new AppError(404, "payload not found");
+  }
+  
+  const email = req.body.email;
+  if (!email) {
+    throw new AppError(404, "Email not found");
+  }
+
+  const result = await auth_service.resend_otp_from_backend(email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Resent OTP to your email",
     data: result,
   });
 });
@@ -135,6 +154,7 @@ const set_fcm_token = catchAsync(async (req, res) => {
 
 export const auth_controller = {
   sign_up_user,
+  resend_otp,
   verify_email,
   login_user,
   change_password,
