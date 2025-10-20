@@ -4,7 +4,7 @@ import { Event_Model } from "./event.schema";
 
 const create_event_into_db = async (payload: any) => {
   const createdEvent = await Event_Model.create(payload);
-
+  console.log(createdEvent);
   if (!createdEvent) {
     throw new AppError(500, "Failed to create event into db");
   }
@@ -12,7 +12,7 @@ const create_event_into_db = async (payload: any) => {
   return createdEvent;
 };
 
-export const get_all_event_from_db = async (
+const get_all_event_from_db = async (
   userId: string,
   searchTerm?: string,
   timeFilter?: "day" | "week" | "month",

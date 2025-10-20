@@ -128,7 +128,7 @@ const verify_email_into_db = async (payload: { email: string; otp: string }) => 
 
 const login_user_into_db = async (req: Request, payload: { email: string; password: string }) => {
   const { email, password } = payload;
-
+console.log(new Date());
   if (!email || !password) {
     throw new AppError(400, "Email or password missing");
   }

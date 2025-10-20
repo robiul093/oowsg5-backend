@@ -39,6 +39,11 @@ const eventSchema = new Schema<TEvent>(
       type: Boolean,
       default: false,
     },
+    timezone: {
+      type: String,
+      required: [true, "timezone is required"],
+      default: "UTC",
+    },
   },
   {
     timestamps: true,

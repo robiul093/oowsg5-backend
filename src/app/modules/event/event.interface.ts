@@ -11,4 +11,5 @@ export type TEvent = {
   status: TEventStatus;
   userId: ObjectId;
   isDeleted: Boolean;
+  timezone: string;
 };
