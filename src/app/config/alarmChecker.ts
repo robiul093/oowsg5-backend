@@ -14,18 +14,19 @@ cron.schedule("* * * * *", async () => {
     alarm: { $gte: nowUTC.toDate(), $lt: oneMinuteLaterUTC.toDate() },
     status: "upcoming",
     isDeleted: false,
-  }).populate("userId");
+  }).populate("userId", "fcmToken");
 
   console.log(`Found ${events.length} event(s) to trigger.`);
 
   for (const event of events) {
     const user: any = event.userId;
+    console.log("user :", user);
     if (!user?.fcmToken) continue;
 
     try {
       // Convert UTC time back to user's timezone for notification message
       const localTime = moment.utc(event.time).tz(event.timezone).format("h:mm A");
-
+      console.log("localTime: ", localTime);
       await sendNotification(
         user.fcmToken,
         "⏰ Event Reminder",

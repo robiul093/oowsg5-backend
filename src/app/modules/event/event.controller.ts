@@ -75,7 +75,7 @@ const get_single_event = catchAsync(async (req, res) => {
 const update_event = catchAsync(async (req, res) => {
   const userId = req?.user?.userId;
   const eventId = req.params.id;
-  let { time, alarm, timeZone } = req.body;
+  let { time, alarm, timeZone, status } = req.body;
 
   if (!userId || !eventId) {
     throw new AppError(404, "userId or eventId not found");
@@ -89,7 +89,11 @@ const update_event = catchAsync(async (req, res) => {
     alarm = moment.tz(alarm, timeZone).utc().toDate();
   }
 
-  const payload = { ...req.body, time, alarm };
+  if (!status) {
+    status = "upcoming";
+  }
+
+  const payload = { ...req.body, status, time, alarm };
 
   const result = await event_service.update_event_into_db(userId, eventId, payload);
 
