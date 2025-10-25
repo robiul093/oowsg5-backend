@@ -126,9 +126,12 @@ const verify_email_into_db = async (payload: { email: string; otp: string }) => 
   return "";
 };
 
-const login_user_into_db = async (req: Request, payload: { email: string; password: string }) => {
-  const { email, password } = payload;
-console.log(new Date());
+const login_user_into_db = async (
+  req: Request,
+  payload: { email: string; password: string; fcmToken: string }
+) => {
+  const { email, password, fcmToken } = payload;
+  console.log(new Date());
   if (!email || !password) {
     throw new AppError(400, "Email or password missing");
   }
@@ -155,6 +158,10 @@ console.log(new Date());
     config.access_token_secret as string,
     config.access_token_expires_in as string
   );
+
+  if (fcmToken) {
+    await User_Model.findByIdAndUpdate(user._id, { fcmToken }, { new: true });
+  }
 
   return { accessToken };
 };
