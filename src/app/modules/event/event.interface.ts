@@ -5,6 +5,8 @@ export type TEventStatus = "upcoming" | "complete" | "missed";
 export type TEvent = {
   title: string;
   description: string;
+  message?: string;
+  voice_url?: string;
   time: Date;
   alarm: Date;
   color: string;

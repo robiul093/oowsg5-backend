@@ -13,6 +13,14 @@ const eventSchema = new Schema<TEvent>(
       required: [true, "description is required"],
       trim: true,
     },
+    message: {
+      type: String,
+      trim: true,
+    },
+    voice_url: {
+      type: String,
+      trim: true,
+    },
     time: {
       type: Date,
       required: [true, "time is required"],
