@@ -1,6 +1,12 @@
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
-export type TNotification = {
-  userId: ObjectId;
-  eventId: ObjectId;
-};
+export interface TNotification {
+  _id?: Types.ObjectId;
+  userId: Types.ObjectId;
+  eventId: Types.ObjectId;
+  title: string;
+  message: string;
+  voice_url?: string;
+  isRead?: boolean;
+  createdAt?: Date;
+}

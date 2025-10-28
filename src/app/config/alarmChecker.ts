@@ -2,6 +2,7 @@ import moment from "moment-timezone";
 import cron from "node-cron";
 import { sendNotification } from "../config/firebase";
 import { Event_Model } from "../modules/event/event.schema";
+import { NotificationService } from "../modules/notification/notification.service";
 
 cron.schedule("* * * * *", async () => {
   console.log("⏰ Cron running at", moment.utc().format());
@@ -30,12 +31,25 @@ cron.schedule("* * * * *", async () => {
       await sendNotification(
         user.fcmToken,
         "⏰ Event Reminder",
-        `${event.title} is scheduled for ${localTime}`
+        `${event.title} is scheduled for ${localTime}`,
+        {
+          voice_url: event.voice_url || "", //  Pass voice URL for Flutter
+          eventId: String(event._id), // (optional) also useful for frontend reference
+        }
       );
 
       // Update event status
       event.status = "complete";
       await event.save();
+
+      // Store notification history
+      await NotificationService.createNotification({
+        userId: user._id,
+        eventId: event._id,
+        title: "⏰ Event Reminder",
+        message: `${event.title} is scheduled for ${localTime}`,
+        voice_url: event.voice_url,
+      });
 
       console.log(`✅ Notification sent for event "${event.title}"`);
     } catch (err) {
