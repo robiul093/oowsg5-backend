@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catch_async";
 import { uploadToCloudinary } from "../../utils/cloudinaryUploader";
 import { sendResponse } from "../../utils/send_response";
 import { event_service } from "./event.service";
+import * as fs from "fs";
 import moment from "moment-timezone";
 
 export const create_event = catchAsync(async (req, res) => {
@@ -14,18 +15,26 @@ export const create_event = catchAsync(async (req, res) => {
   }
   console.log(req.file);
   // Optional file upload handling
-  let fileUrl = null;
+  let fileUrl: string | null = null;
+  let previewUrl: string | null = null;
 
   if (req.file) {
-    const filePath = req.file.path;
+  const filePath = req.file.path;
+  
+  // Always upload as "image" for public delivery + viewer
+  const uploadResult = await uploadToCloudinary(filePath, "image");
 
-    // Determine file type
-    const resourceType = req.file.mimetype === "application/pdf" ? "raw" : "image";
+  fileUrl = uploadResult.url; // original PDF (downloadable)
 
-    const uploadResult = await uploadToCloudinary(filePath, resourceType);
-    fileUrl = uploadResult.url; // use secure_url returned from helper
-    console.log({ fileUrl });
-  }
+  // Generate viewer URL
+  previewUrl = uploadResult.url.replace(
+    '/upload/',
+    '/upload/fl_viewer/'
+  );
+
+  // Clean up
+  fs.unlink(filePath, () => {});
+}
 
   // Convert local time to UTC
   const utcTime = moment.tz(time, timeZone).utc().toDate();
@@ -36,9 +45,10 @@ export const create_event = catchAsync(async (req, res) => {
     ...req.body,
     time: utcTime,
     alarm: utcAlarm,
-    fileUrl, // optional file URL
+    fileUrl,
+    previewUrl, // <-- this is your working PDF preview
   };
-  console.log({ payload });
+  
   const result = await event_service.create_event_into_db(payload);
 
   sendResponse(res, {
