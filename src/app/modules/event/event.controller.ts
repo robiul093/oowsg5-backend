@@ -13,7 +13,7 @@ export const create_event = catchAsync(async (req, res) => {
   if (!userId || !req.body) {
     throw new AppError(404, "UserId or payload not found!!");
   }
-  console.log(req.file);
+  // console.log(req.file);
   // Optional file upload handling
   let fileUrl: string | null = null;
   let previewUrl: string | null = null;
@@ -48,7 +48,7 @@ export const create_event = catchAsync(async (req, res) => {
     fileUrl,
     previewUrl, // <-- this is your working PDF preview
   };
-  
+
   const result = await event_service.create_event_into_db(payload);
 
   sendResponse(res, {
