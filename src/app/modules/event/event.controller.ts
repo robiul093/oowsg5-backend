@@ -1,23 +1,44 @@
 import { AppError } from "../../utils/app_error";
 import catchAsync from "../../utils/catch_async";
+import { uploadToCloudinary } from "../../utils/cloudinaryUploader";
 import { sendResponse } from "../../utils/send_response";
 import { event_service } from "./event.service";
 import moment from "moment-timezone";
 
-const create_event = catchAsync(async (req, res) => {
+export const create_event = catchAsync(async (req, res) => {
   const userId = req?.user?.userId;
   const { time, alarm, timeZone } = req.body;
 
   if (!userId || !req.body) {
     throw new AppError(404, "UserId or payload not found!!");
   }
+  console.log(req.file);
+  // Optional file upload handling
+  let fileUrl = null;
+
+  if (req.file) {
+    const filePath = req.file.path;
+
+    // Determine file type
+    const resourceType = req.file.mimetype === "application/pdf" ? "raw" : "image";
+
+    const uploadResult = await uploadToCloudinary(filePath, resourceType);
+    fileUrl = uploadResult.url; // use secure_url returned from helper
+    console.log({ fileUrl });
+  }
 
   // Convert local time to UTC
   const utcTime = moment.tz(time, timeZone).utc().toDate();
   const utcAlarm = moment.tz(alarm, timeZone).utc().toDate();
 
-  const payload = { userId, ...req.body, time: utcTime, alarm: utcAlarm };
-
+  const payload = {
+    userId,
+    ...req.body,
+    time: utcTime,
+    alarm: utcAlarm,
+    fileUrl, // optional file URL
+  };
+  console.log({ payload });
   const result = await event_service.create_event_into_db(payload);
 
   sendResponse(res, {

@@ -21,6 +21,9 @@ const eventSchema = new Schema<TEvent>(
       type: String,
       trim: true,
     },
+    fileUrl: {
+      type: String,
+    },
     time: {
       type: Date,
       required: [true, "time is required"],

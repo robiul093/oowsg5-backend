@@ -7,6 +7,7 @@ export type TEvent = {
   description: string;
   message?: string;
   voice_url?: string;
+  fileUrl?: string;
   time: Date;
   alarm: Date;
   color: string;
