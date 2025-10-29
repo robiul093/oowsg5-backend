@@ -22,4 +22,4 @@ router.post("/reset-password", auth_controller.reset_password);
 router.post("/login-with-google", auth_controller.login_user_with_google);
 router.patch("/fcm-token", auth(), auth_controller.set_fcm_token);
 
-export const authRouter = router;
+export const authRoute = router;

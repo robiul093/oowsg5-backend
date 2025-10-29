@@ -3,8 +3,12 @@ import { User_Model } from "../auth/auth.schema";
 
 const get_profile_info_from_db = async (email: string) => {
   const user = await User_Model.findOne({ email, isDeleted: false }).select(
-    "_id fullName email profileImage isVerified createdAt updatedAt"
-  );
+    "_id fullName email profileImage subscriptionStatus subscriptionId isVerified createdAt updatedAt"
+  ).populate({
+    path: "subscribedPlanId",
+    select: "name price currency", 
+  });;
+  console.log(user);
   if (!user) {
     throw new AppError(404, "User not found");
   }

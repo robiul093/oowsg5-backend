@@ -11,6 +11,6 @@ router.post("/", NotificationController.create);
 router.get("/", auth(), NotificationController.getByUser);
 
 // PUT: Mark a notification as read
-router.put("/read/:id", NotificationController.markRead);
+router.put("/read/:id", auth(), NotificationController.markRead);
 
 export const NotificationRoute = router;

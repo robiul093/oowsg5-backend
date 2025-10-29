@@ -10,4 +10,4 @@ router.get("/get-single-event/:id", auth(), event_controller.get_single_event);
 router.patch("/update-event/:id", auth(), event_controller.update_event);
 router.patch("/delete-event/:id", auth(), event_controller.delete_event);
 
-export const eventRouter = router;
+export const eventRoute = router;
