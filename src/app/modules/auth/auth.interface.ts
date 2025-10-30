@@ -23,6 +23,7 @@ export type TUser = {
   isActive?: TAccountStatus;
   isDeleted?: boolean;
 
+  planName: string;
   stripeCustomerId?: string;
   subscriptionId?: string;
   subscriptionStatus?: TSubscriptionStatus;

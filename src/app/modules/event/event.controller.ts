@@ -21,12 +21,12 @@ export const create_event = catchAsync(async (req, res) => {
   const tz = DateTime.local().setZone(timeZone);
   if (!tz.isValid) throw new AppError(400, "Invalid timeZone");
 
-  // 3. Parse time & alarm
-  const localTime = DateTime.fromISO(time, { zone: timeZone });
-  const localAlarm = alarm ? DateTime.fromISO(alarm, { zone: timeZone }) : null;
+  // // 3. Parse time & alarm
+  // const localTime = DateTime.fromISO(time, { zone: timeZone });
+  // const localAlarm = alarm ? DateTime.fromISO(alarm, { zone: timeZone }) : null;
 
-  if (!localTime.isValid) throw new AppError(400, "Invalid time format");
-  if (alarm && !localAlarm?.isValid) throw new AppError(400, "Invalid alarm format");
+  // if (!localTime.isValid) throw new AppError(400, "Invalid time format");
+  // if (alarm && !localAlarm?.isValid) throw new AppError(400, "Invalid alarm format");
 
   // 4. File upload (PDF preview)
   let fileUrl: string | null = null;
@@ -58,8 +58,8 @@ export const create_event = catchAsync(async (req, res) => {
   const payload = {
     userId,
     ...req.body,
-    time: localTime.toUTC().toJSDate(),
-    alarm: localAlarm ? localAlarm.toUTC().toJSDate() : null,
+    // time: localTime.toUTC().toJSDate(),
+    // alarm: localAlarm ? localAlarm.toUTC().toJSDate() : null,
     fileUrl,
     previewUrl,
   };

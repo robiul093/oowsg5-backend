@@ -33,6 +33,7 @@ export const handle_stripe_webhook = async (req: Request, res: Response) => {
   const session = event.data.object as Stripe.Checkout.Session;
   const userId = session.metadata?.userId;
   const planId = session.metadata?.planId;
+  const planName = session.metadata?.planName;
 
   console.log(userId, planId);
 
@@ -56,6 +57,7 @@ export const handle_stripe_webhook = async (req: Request, res: Response) => {
         });
 
         if (user) {
+          user.planName = planName as string;
           user.subscriptionId = subscription.id;
           user.subscriptionStatus = subscription.status;
           user.subscribedPlanId = new mongoose.Types.ObjectId(planId) as any;

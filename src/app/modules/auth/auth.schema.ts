@@ -47,6 +47,11 @@ const userSchema = new Schema<TUser>(
     },
 
     // payment related
+    planName: {
+      type: String,
+      enum: ["Free Plan", "Premium Plan", "Platinum Plan"],
+      default: "Free Plan",
+    },
     stripeCustomerId: { type: String },
     subscriptionId: { type: String },
     subscribedPlanId: {

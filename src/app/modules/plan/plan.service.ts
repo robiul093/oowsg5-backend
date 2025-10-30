@@ -47,6 +47,7 @@ const create_checkout_session = async (userId: string, planId: string) => {
       metadata: {
         userId: userId.toString(),
         planId: planId.toString(),
+        planName: plan.name.toString(),
       },
       success_url: `${process.env.CLIENT_URL}/payment/success`,
       cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
