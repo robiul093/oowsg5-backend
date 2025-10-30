@@ -5,55 +5,72 @@ import { sendResponse } from "../../utils/send_response";
 import { event_service } from "./event.service";
 import * as fs from "fs";
 import moment from "moment-timezone";
+import { DateTime } from "luxon";
 
 export const create_event = catchAsync(async (req, res) => {
   const userId = req?.user?.userId;
   const { time, alarm, timeZone } = req.body;
 
-  if (!userId || !req.body) {
-    throw new AppError(404, "UserId or payload not found!!");
-  }
-  // console.log(req.file);
-  // Optional file upload handling
+  console.log("reqBody", req.body);
+
+  // 1. Validate user & required fields
+  if (!userId) throw new AppError(401, "Unauthorized");
+  if (!time || !timeZone) throw new AppError(400, "time and timeZone required");
+
+  // 2. Validate timezone
+  const tz = DateTime.local().setZone(timeZone);
+  if (!tz.isValid) throw new AppError(400, "Invalid timeZone");
+
+  // 3. Parse time & alarm
+  const localTime = DateTime.fromISO(time, { zone: timeZone });
+  const localAlarm = alarm ? DateTime.fromISO(alarm, { zone: timeZone }) : null;
+
+  if (!localTime.isValid) throw new AppError(400, "Invalid time format");
+  if (alarm && !localAlarm?.isValid) throw new AppError(400, "Invalid alarm format");
+
+  // 4. File upload (PDF preview)
   let fileUrl: string | null = null;
   let previewUrl: string | null = null;
 
   if (req.file) {
-  const filePath = req.file.path;
-  
-  // Always upload as "image" for public delivery + viewer
-  const uploadResult = await uploadToCloudinary(filePath, "image");
+    const filePath = req.file.path;
 
-  fileUrl = uploadResult.url; // original PDF (downloadable)
+    try {
+      const uploadResult = await uploadToCloudinary(filePath, "image");
+      fileUrl = uploadResult.url;
 
-  // Generate viewer URL
-  previewUrl = uploadResult.url.replace(
-    '/upload/',
-    '/upload/fl_viewer/'
-  );
+      // Safe preview URL
+      previewUrl = fileUrl.replace('/upload/', '/upload/fl_viewer/');
 
-  // Clean up
-  fs.unlink(filePath, () => {});
-}
+      console.log("fileUrl:", fileUrl);
+      console.log("previewUrl:", previewUrl);
 
-  // Convert local time to UTC
-  const utcTime = moment.tz(time, timeZone).utc().toDate();
-  const utcAlarm = moment.tz(alarm, timeZone).utc().toDate();
+      // Clean up
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("File delete error:", err);
+      });
+    } catch (uploadErr) {
+      throw new AppError(500, "File upload failed");
+    }
+  }
 
+  // 5. Build payload
   const payload = {
     userId,
     ...req.body,
-    time: utcTime,
-    alarm: utcAlarm,
+    time: localTime.toUTC().toJSDate(),
+    alarm: localAlarm ? localAlarm.toUTC().toJSDate() : null,
     fileUrl,
-    previewUrl, // <-- this is your working PDF preview
+    previewUrl,
   };
 
+  // 6. Save to DB
   const result = await event_service.create_event_into_db(payload);
 
+  // 7. Response
   sendResponse(res, {
     success: true,
-    statusCode: 200,
+    statusCode: 201, // ← 201 for creation
     message: "Event created successfully.",
     data: result,
   });
